@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+
+# ML Models (large files)
+*.dat.gz
+*.pkl
+*.h5
+*.model
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Assignment docs (keep in repo for reference)
+# *.docx
+# *.zip

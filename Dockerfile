@@ -1,5 +1,9 @@
-# Use the official Python image from the Docker Hub
+# Breast Cancer Prediction Microservice
+# Docker Image for Flask ML API
+
+# Use the official Python image from Docker Hub
 FROM python:3.12-slim
+
 # Install build tools and clean up
 RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential && \
@@ -7,45 +11,33 @@ RUN apt-get update && \
 
 # Set the working directory in the container
 WORKDIR /app
+
 # Upgrade pip and setuptools
 RUN pip install --no-cache-dir --upgrade pip setuptools
 
-# Copy the requirements file into the container
-COPY . /app
+# Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install the dependencies
+# Install dependencies from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install click
-RUN pip install cycler
-RUN pip install Flask
-RUN pip install fonttools
-RUN pip install gunicorn
-RUN pip install itsdangerous
-RUN pip install Jinja2
-RUN pip install joblib
-RUN pip install kiwisolver
-RUN pip install MarkupSafe
-RUN pip install matplotlib
-RUN pip install packaging
-RUN pip install pandas
-RUN pip install Pillow
-RUN pip install pyparsing
-RUN pip install python-dateutil
-RUN pip install six
-RUN pip install threadpoolctl
-RUN pip install Werkzeug
-RUN pip install numpy
-RUN pip install scikit-learn
-RUN pip install pytz
-RUN pip install scipy
-#RUN pip install sklearn
+# Install additional ML dependencies
+RUN pip install --no-cache-dir numpy scikit-learn scipy
 
+# Copy the application code
+COPY . /app
 
+# Expose the port Flask runs on
 EXPOSE 5000
 
-ENV NAME myenv
+# Set environment variables
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+ENV PYTHONUNBUFFERED=1
 
-# Specify the command to run your application
-CMD ["python", "app.py"] 
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Run the application
+CMD ["python", "app.py"]
